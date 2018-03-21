@@ -9,7 +9,7 @@ const element = {
   props: {
     id: 'container',
     children: [
-      { type: 'span', props: {} },
+      { type: 'span', props: { children: [{ type: 'TEXT ELEMENT', props: { nodeValue: 'TEXTY' } }] } },
       { type: 'input', props: { value: 'foo', type: 'text' } }
     ]
   }
@@ -18,16 +18,21 @@ const element = {
 would describe:
 
 <div id="container">
-  <span></span>
+  <span>TEXTY</span>
   <input value="foo" type="text">
 </div>
 */
 
+const TEXT_ELEMENT = 'TEXT ELEMENT';
+
 function render(element, parentDom) {
   const { type, props } = element;
 
-  // Create the initial DOM element
-  const dom = document.createElement(type);
+  // Create the initial element either as a text node or a
+  // DOM element.
+  const dom = type === TEXT_ELEMENT
+    ? document.createTextNode('')
+    : document.createElement(type);
 
   const propKeys = Object.keys(props);
   // Filter all the props to select only the event listeners
@@ -68,6 +73,7 @@ const exampleElement = {
   props: {
     id: 'container',
     children: [
+      { type: 'span', props: { children: [{ type: TEXT_ELEMENT, props: { nodeValue: 'Thing:' } }] } },
       { type: 'input', props: { type: 'text', value: 'thing', id: 'thingInput' }}
     ]
   }
