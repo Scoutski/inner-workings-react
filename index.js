@@ -61,6 +61,47 @@ function render(element, parentDom) {
   parentDom.appendChild(dom);
 }
 
+// ----------------------------------
+// NOTE ON JSX:
+// JSX is transpiled from babel down to an object format
+// that looks like this:
+//
+// const element = createElement(
+//   "div",
+//   { id: "container" },
+//   createElement("input", { value: "foo", type: "text" })
+// );
+//
+// This note is just to show that nothing here actually
+// converts the JSX to something more readable, there is
+// an expected way of converting it now, done by babel.
+// ----------------------------------
+
+// Type is the elementType (e.g. div)
+// Config is the props (e.g. onClick handler)
+// ...args is going to be any children (optional)
+function createElement (type, config, ...args) {
+  // clone the config without modifying it
+  const props = Object.assign({}, config);
+  const hasChildren = args.length > 0;
+  // clone the children into the new props object
+  const rawChildren = hasChildren ? [].concat(...args) : [];
+  props.children = rawChildren
+    // Just removing null/undefined/false arguments so
+    // that there is no attempt to render them if arguments
+    // are passed in incorrectly.
+    .filter(c => c != null && c !== false)
+    // Need to determine whether or not to return the child or simply
+    // render a text element
+    .map(c => c instanceof Object ? c : createTextElement(c));
+  // the return is what we expect an Element to be for the render method
+  return { type, props }
+}
+
+function createTextElement (value) {
+  return createElement(TEXT_ELEMENT, { nodeValue: value });
+}
+
 //
 //
 //
